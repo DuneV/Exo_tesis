@@ -57,18 +57,24 @@ class esp32Communication(Node):
     
     def file_treat(self, data_recieve):
         data = data_recieve.split(';')
-        data = [float(element.replace(',', '.')) for element in data]
-        result = tuple(data)
-        self.angle_1 = result[0]
-        self.angle_2 = result[1]
-        return self.angle_1, self.angle_2
+        try:
+            data = [float(element.replace(',', '.')) for element in data]
+            result = tuple(data)
+            self.angle_1 = result[0]
+            self.angle_2 = result[1]
+            return self.angle_1, self.angle_2
+        except:
+            print("angle lecture fail")
 
     def publish_angles(self):
         value = self.read_port()
         point_message = Point()
-        point_message.x, point_message.y = self.file_treat(value)
-        self.publisher_1.publish(point_message)
-    
+        try:
+            point_message.x, point_message.y = self.file_treat(value)
+            self.publisher_1.publish(point_message)
+        except:
+            pass
+
     def listener_callback(self, msg):
         self.move = msg.data
         if self.move == 'walk':
@@ -106,7 +112,7 @@ class esp32Communication(Node):
             signo2 = 1 if row[3] == 1 else -1
             angulo2 = signo2 *row[4]
             # Guardar el ángulo
-            self.angulos_guardados.append(angulo, angulo2)
+            self.angulos_guardados.append((angulo, angulo2))
             self.posew = ','.join(map(str, row))
             self.execute_subroutine(self.posew)
             
@@ -145,7 +151,7 @@ class esp32Communication(Node):
             signo2 = 1 if row[3] == 1 else -1
             angulo2 = signo2 *row[4]
             # Guardar el ángulo
-            self.angulos_guardados.append(angulo, angulo2)
+            self.angulos_guardados.append((angulo, angulo2))
 
             self.posew = ','.join(map(str, row))
             self.execute_subroutine(self.posew)
@@ -166,7 +172,7 @@ class esp32Communication(Node):
         self.theta2 = self.theta1
         self.vel = 20000
         self.matrixp0 = np.array([self.addr, self.theta1, self.vel, self.addr, self.theta2, self.vel])
-        self.angulos_guardados.append(self.theta1, self.theta2)
+        self.angulos_guardados.append((self.theta1, self.theta2))
         self.task_completed = False
         self.pose1 = ','.join(map(str, self.matrixp0))
         # Ejecutar subrutina 1
@@ -181,7 +187,7 @@ class esp32Communication(Node):
         self.theta2 = k*self.theta1
         self.vel = 20000
         self.matrixp1 = np.array([self.addr, self.theta1, self.vel, 0, self.theta2, self.vel])
-        self.angulos_guardados.append(-self.theta1, self.theta2)
+        self.angulos_guardados.append((-self.theta1, self.theta2))
         self.task_completed = False
         self.pose1 = ','.join(map(str, self.matrixp1))
         # Ejecutar subrutina 1
@@ -189,8 +195,23 @@ class esp32Communication(Node):
         time.sleep(2)
 
     def handle_default(self):
-        self.stay = "0,0,0,0,0,0"
-        self.execute_subroutine(self.stay)
+        velh = 2000
+        angulof1, angulof2 = zip(*self.angulos_guardados)
+
+        # Calcular las direcciones basadas en las sumas de ángulos
+        v1 = sum(angulof1)
+        v2 = sum(angulof2)
+        dir1 = int(v1 > 0)
+        dir2 = int(v2 <= 0)
+        print(v1)
+        print(v2)
+        # Crear el vector de movimiento
+        self.mvec = np.array([dir1, abs(v1), velh, dir2, abs(v2), velh])
+
+        # Ejecutar la subrutina
+        self.home = ','.join(map(str, self.mvec))
+        self.execute_subroutine(self.home)
+        self.angulos_guardados = []
     
     def execute_subroutine(self, data):
         self.send_data_with_timer(data)
