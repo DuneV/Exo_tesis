@@ -11,12 +11,6 @@ from sensor_msgs.msg import Joy
 from geometry_msgs.msg import Twist
 from geometry_msgs.msg import Point
 from std_msgs.msg import String
-import socket
-
-# Parameters
-localPort=8888
-bufferSize=1024
-
 
 class esp32Communication(Node):
     
@@ -30,9 +24,9 @@ class esp32Communication(Node):
             10
         )
         self.timer = None
+        self.wait = 10.0
         self.timer_enabled = False  # Bandera para controlar el temporizador
         self.task_completed = False  # Bandera para indicar si la tarea ha terminado
-        self.last_message = ""
         self.actual_pos = np.zeros(6)
         self.publisher_1 = self.create_publisher(Point, '/angles', 10)
         self.publisher_2 = self.create_publisher(Twist, '/command', 10)
@@ -120,7 +114,35 @@ class esp32Communication(Node):
 
     
     def handle_case2(self):
-        print("case 2")
+        vel2 = 1500  # lower is faster 1000 - 2000 us
+        angle_init = 20
+        k1 = 1.5
+        k2 = 0.5
+        k3 = 0.3
+
+        self.matrixw = np.array([
+            [1, angle_init, vel2, 0, k1*angle_init, vel2],
+            [0, angle_init*k2, vel2, 0, k2*angle_init, vel2],
+            [0, angle_init*(k1-k3), vel2, 0, 0, 0],
+            [0, angle_init*k3, vel2, 1, k2*angle_init, vel2],
+            [0, 0, 0, 1, k1*angle_init, vel2],
+            [1, angle_init*k3, vel2, 0, angle_init, vel2],
+            [1, angle_init*(1- k3 + k2), vel2, 0, k2*angle_init, vel2],
+            [1, angle_init*(k2), vel2, 1, angle_init*k3, vel2]
+        ])
+
+        for row in self.matrixw:
+            self.posew = ','.join(map(str, row))
+            self.execute_subroutine(self.posew)
+            
+            # Obtener el tiempo de espera dinámico para la fila actual
+            wait_time = self.calculate_wait_time(row)
+            
+            # Esperar el tiempo dinámico antes de la siguiente fila
+            time.sleep(wait_time)
+
+        # Reiniciar la bandera de tarea completada
+        self.task_completed = False
 
     def handle_case3(self):
         # matrix de posicion
@@ -172,7 +194,7 @@ class esp32Communication(Node):
     def calculate_wait_time(self, data):
         # Implementa la lógica para calcular el tiempo de espera según la subrutina
         # Puedes ajustar esto según tus necesidades específicas
-        return 10.0
+        return self.wait
 
     def timer_callback(self):
         print("Tarea completada")
