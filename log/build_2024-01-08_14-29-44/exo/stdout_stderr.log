@@ -1,0 +1,9 @@
+running egg_info
+creating ../../build/exo/mov_woc.egg-info
+writing ../../build/exo/mov_woc.egg-info/PKG-INFO
+writing dependency_links to ../../build/exo/mov_woc.egg-info/dependency_links.txt
+writing entry points to ../../build/exo/mov_woc.egg-info/entry_points.txt
+writing requirements to ../../build/exo/mov_woc.egg-info/requires.txt
+writing top-level names to ../../build/exo/mov_woc.egg-info/top_level.txt
+writing manifest file '../../build/exo/mov_woc.egg-info/SOURCES.txt'
+error: package directory 'mov_woc' does not exist
