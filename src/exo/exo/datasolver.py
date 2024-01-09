@@ -25,6 +25,7 @@ class esp32Communication(Node):
         )
         self.timer = None
         self.wait = 10.0
+        self.angulos_guardados = []
         self.timer_enabled = False  # Bandera para controlar el temporizador
         self.task_completed = False  # Bandera para indicar si la tarea ha terminado
         self.actual_pos = np.zeros(6)
@@ -100,6 +101,12 @@ class esp32Communication(Node):
         ])
 
         for row in self.matrixw:
+            signo = -1 if row[0] == 1 else 1
+            angulo = signo * row[1]
+            signo2 = 1 if row[3] == 1 else -1
+            angulo2 = signo2 *row[4]
+            # Guardar el ángulo
+            self.angulos_guardados.append(angulo, angulo2)
             self.posew = ','.join(map(str, row))
             self.execute_subroutine(self.posew)
             
@@ -108,7 +115,7 @@ class esp32Communication(Node):
             
             # Esperar el tiempo dinámico antes de la siguiente fila
             time.sleep(wait_time)
-
+        print(self.angulos_guardados)
         # Reiniciar la bandera de tarea completada
         self.task_completed = False
 
@@ -132,6 +139,14 @@ class esp32Communication(Node):
         ])
 
         for row in self.matrixw:
+            # Calcular el ángulo según el valor en la columna 0
+            signo = -1 if row[0] == 1 else 1
+            angulo = signo * row[1]
+            signo2 = 1 if row[3] == 1 else -1
+            angulo2 = signo2 *row[4]
+            # Guardar el ángulo
+            self.angulos_guardados.append(angulo, angulo2)
+
             self.posew = ','.join(map(str, row))
             self.execute_subroutine(self.posew)
             
@@ -148,9 +163,10 @@ class esp32Communication(Node):
         # matrix de posicion
         self.addr = 0
         self.theta1 = 20
-        self.theta2 = -self.theta1
+        self.theta2 = self.theta1
         self.vel = 20000
         self.matrixp0 = np.array([self.addr, self.theta1, self.vel, self.addr, self.theta2, self.vel])
+        self.angulos_guardados.append(self.theta1, self.theta2)
         self.task_completed = False
         self.pose1 = ','.join(map(str, self.matrixp0))
         # Ejecutar subrutina 1
@@ -164,10 +180,10 @@ class esp32Communication(Node):
         k = 0.6
         self.theta2 = k*self.theta1
         self.vel = 20000
-        self.matrixp1 = np.array([self.addr, self.theta1, self.vel, not self.addr, self.theta2, self.vel])
+        self.matrixp1 = np.array([self.addr, self.theta1, self.vel, 0, self.theta2, self.vel])
+        self.angulos_guardados.append(-self.theta1, self.theta2)
         self.task_completed = False
         self.pose1 = ','.join(map(str, self.matrixp1))
-    
         # Ejecutar subrutina 1
         self.execute_subroutine(self.pose1)
         time.sleep(2)
