@@ -22,7 +22,9 @@ setup(
     license='TODO: License declaration',
     tests_require=['pytest'],
     entry_points={
-        'console_scripts': ['control = exo.datasolver:main', 'wlanesp = exo.wlanconn:main'
+        'console_scripts': ['control = exo.datasolver:main', 
+                            'wlanesp = exo.wlanconn:main',
+                            'interface = exo.interpreter:main'
         ],
     },
 )

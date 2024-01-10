@@ -1,0 +1,28 @@
+[0.812s] Invoking command in '/home/krita/exo_ws/src/exo': PYTHONPATH=/home/krita/exo_ws/build/exo/prefix_override:/home/krita/exo_ws/install/exo/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base ../../build/exo build --build-base /home/krita/exo_ws/build/exo/build install --record /home/krita/exo_ws/build/exo/install.log --single-version-externally-managed
+[1.037s] running egg_info
+[1.037s] writing ../../build/exo/exo.egg-info/PKG-INFO
+[1.037s] writing dependency_links to ../../build/exo/exo.egg-info/dependency_links.txt
+[1.038s] writing entry points to ../../build/exo/exo.egg-info/entry_points.txt
+[1.038s] writing requirements to ../../build/exo/exo.egg-info/requires.txt
+[1.038s] writing top-level names to ../../build/exo/exo.egg-info/top_level.txt
+[1.040s] reading manifest file '../../build/exo/exo.egg-info/SOURCES.txt'
+[1.041s] writing manifest file '../../build/exo/exo.egg-info/SOURCES.txt'
+[1.041s] running build
+[1.041s] running build_py
+[1.041s] copying exo/interpreter.py -> /home/krita/exo_ws/build/exo/build/lib/exo
+[1.042s] running install
+[1.042s] /usr/lib/python3/dist-packages/setuptools/command/install.py:34: SetuptoolsDeprecationWarning: setup.py install is deprecated. Use build and pip and other standards-based tools.
+[1.042s]   warnings.warn(
+[1.042s] running install_lib
+[1.043s] copying /home/krita/exo_ws/build/exo/build/lib/exo/interpreter.py -> /home/krita/exo_ws/install/exo/lib/python3.10/site-packages/exo
+[1.044s] byte-compiling /home/krita/exo_ws/install/exo/lib/python3.10/site-packages/exo/interpreter.py to interpreter.cpython-310.pyc
+[1.045s] running install_data
+[1.046s] running install_egg_info
+[1.048s] removing '/home/krita/exo_ws/install/exo/lib/python3.10/site-packages/exo-0.0.0-py3.10.egg-info' (and everything under it)
+[1.048s] Copying ../../build/exo/exo.egg-info to /home/krita/exo_ws/install/exo/lib/python3.10/site-packages/exo-0.0.0-py3.10.egg-info
+[1.049s] running install_scripts
+[1.066s] Installing control script to /home/krita/exo_ws/install/exo/lib/exo
+[1.067s] Installing interface script to /home/krita/exo_ws/install/exo/lib/exo
+[1.067s] Installing wlanesp script to /home/krita/exo_ws/install/exo/lib/exo
+[1.067s] writing list of installed files to '/home/krita/exo_ws/build/exo/install.log'
+[1.086s] Invoked command in '/home/krita/exo_ws/src/exo' returned '0': PYTHONPATH=/home/krita/exo_ws/build/exo/prefix_override:/home/krita/exo_ws/install/exo/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base ../../build/exo build --build-base /home/krita/exo_ws/build/exo/build install --record /home/krita/exo_ws/build/exo/install.log --single-version-externally-managed

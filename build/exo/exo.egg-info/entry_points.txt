@@ -1,4 +1,5 @@
 [console_scripts]
 control = exo.datasolver:main
+interface = exo.interpreter:main
 wlanesp = exo.wlanconn:main
 

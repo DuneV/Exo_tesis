@@ -1,6 +1,8 @@
+/home/krita/exo_ws/install/exo/lib/python3.10/site-packages/exo/interpreter.py
 /home/krita/exo_ws/install/exo/lib/python3.10/site-packages/exo/datasolver.py
 /home/krita/exo_ws/install/exo/lib/python3.10/site-packages/exo/__init__.py
 /home/krita/exo_ws/install/exo/lib/python3.10/site-packages/exo/wlanconn.py
+/home/krita/exo_ws/install/exo/lib/python3.10/site-packages/exo/__pycache__/interpreter.cpython-310.pyc
 /home/krita/exo_ws/install/exo/lib/python3.10/site-packages/exo/__pycache__/datasolver.cpython-310.pyc
 /home/krita/exo_ws/install/exo/lib/python3.10/site-packages/exo/__pycache__/__init__.cpython-310.pyc
 /home/krita/exo_ws/install/exo/lib/python3.10/site-packages/exo/__pycache__/wlanconn.cpython-310.pyc
@@ -15,4 +17,5 @@
 /home/krita/exo_ws/install/exo/lib/python3.10/site-packages/exo-0.0.0-py3.10.egg-info/PKG-INFO
 /home/krita/exo_ws/install/exo/lib/python3.10/site-packages/exo-0.0.0-py3.10.egg-info/zip-safe
 /home/krita/exo_ws/install/exo/lib/exo/control
+/home/krita/exo_ws/install/exo/lib/exo/interface
 /home/krita/exo_ws/install/exo/lib/exo/wlanesp

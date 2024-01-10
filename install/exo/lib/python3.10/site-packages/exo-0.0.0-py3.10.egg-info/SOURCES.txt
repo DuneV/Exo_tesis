@@ -10,6 +10,7 @@ setup.py
 ../../build/exo/exo.egg-info/zip-safe
 exo/__init__.py
 exo/datasolver.py
+exo/interpreter.py
 exo/wlanconn.py
 launch/sub_launch.py
 resource/exo
