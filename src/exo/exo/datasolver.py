@@ -7,7 +7,6 @@ from io import StringIO
 import rclpy
 import threading
 from rclpy.node import Node
-from sensor_msgs.msg import Joy
 from geometry_msgs.msg import Twist
 from geometry_msgs.msg import Point
 from std_msgs.msg import String
@@ -23,6 +22,10 @@ class esp32Communication(Node):
             self.listener_callback, 
             10
         )
+        self.susbcription2 = self.create_subscription(String, 
+                                                      '/mode', 
+                                                      self.listener_callback2, 
+                                                      10)
         self.timer = None
         self.wait = 8.5
         self.angulos_guardados = []

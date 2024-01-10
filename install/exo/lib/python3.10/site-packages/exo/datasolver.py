@@ -7,7 +7,6 @@ from io import StringIO
 import rclpy
 import threading
 from rclpy.node import Node
-from sensor_msgs.msg import Joy
 from geometry_msgs.msg import Twist
 from geometry_msgs.msg import Point
 from std_msgs.msg import String
@@ -24,13 +23,14 @@ class esp32Communication(Node):
             10
         )
         self.timer = None
-        self.wait = 10.0
+        self.wait = 8.5
         self.angulos_guardados = []
         self.timer_enabled = False  # Bandera para controlar el temporizador
         self.task_completed = False  # Bandera para indicar si la tarea ha terminado
         self.actual_pos = np.zeros(6)
         self.publisher_1 = self.create_publisher(Point, '/angles', 10)
-        self.publisher_2 = self.create_publisher(Twist, '/command', 10)
+        self.publisher_2 = self.create_publisher(Point, '/command', 10)
+        self.angles = Point()
 
     def get_input(self):
         # Read user input from the console
@@ -48,12 +48,7 @@ class esp32Communication(Node):
         return packet.decode('utf-8').rstrip('\n').rstrip('\r')
     
     def publish_twist(self):
-        values = self.get_input()
-        if values:
-            twist_message = Twist()
-            twist_message.linear.x, twist_message.linear.y, twist_message.linear.z, \
-            twist_message.angular.x, twist_message.angular.y, twist_message.angular.z = values
-            self.publisher_2.publish(twist_message)
+        pass
     
     def file_treat(self, data_recieve):
         data = data_recieve.split(';')
@@ -113,6 +108,9 @@ class esp32Communication(Node):
             angulo2 = signo2 *row[4]
             # Guardar el ángulo
             self.angulos_guardados.append((angulo, angulo2))
+            self.angles.x = angulo
+            self.angles.y = angulo2
+            self.publisher_2.publish(self.angles)
             self.posew = ','.join(map(str, row))
             self.execute_subroutine(self.posew)
             
@@ -152,7 +150,9 @@ class esp32Communication(Node):
             angulo2 = signo2 *row[4]
             # Guardar el ángulo
             self.angulos_guardados.append((angulo, angulo2))
-
+            self.angles.x = angulo
+            self.angles.y = angulo2
+            self.publisher_2.publish(self.angles)
             self.posew = ','.join(map(str, row))
             self.execute_subroutine(self.posew)
             
@@ -173,6 +173,9 @@ class esp32Communication(Node):
         self.vel = 20000
         self.matrixp0 = np.array([self.addr, self.theta1, self.vel, self.addr, self.theta2, self.vel])
         self.angulos_guardados.append((self.theta1, self.theta2))
+        self.angles.x = self.theta1
+        self.angles.y = self.theta2
+        self.publisher_2.publish(self.angles)
         self.task_completed = False
         self.pose1 = ','.join(map(str, self.matrixp0))
         # Ejecutar subrutina 1
@@ -188,6 +191,9 @@ class esp32Communication(Node):
         self.vel = 20000
         self.matrixp1 = np.array([self.addr, self.theta1, self.vel, 0, self.theta2, self.vel])
         self.angulos_guardados.append((-self.theta1, self.theta2))
+        self.angles.x = -self.theta1
+        self.angles.y = self.theta2
+        self.publisher_2.publish(self.angles)
         self.task_completed = False
         self.pose1 = ','.join(map(str, self.matrixp1))
         # Ejecutar subrutina 1

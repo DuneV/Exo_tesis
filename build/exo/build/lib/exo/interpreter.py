@@ -2,8 +2,8 @@
 
 import tkinter as tk
 from tkinter import ttk
-from tkinter import StringVar
 import threading
+import numpy as np
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
@@ -20,7 +20,7 @@ class ROSNode(Node):
                                                      '/movement', 
                                                      self.listener_callback, 
                                                      10)
-        self.subscription2 = self.create_subscription(Twist, 
+        self.subscription2 = self.create_subscription(Point, 
                                                       '/command', 
                                                       self.listener_callback2, 
                                                       10)
@@ -37,18 +37,21 @@ class ROSNode(Node):
         self.move_value = " "
         self.angle1 = 0.0
         self.angle2 = 0.0
+        self.offset_angle = np.radians(-90)
+        self.anglec1 = 0.0 + self.offset_angle
+        self.anglec2 = 0.0 
 
     def listener_callback(self, msg):
         # Ahora, self.move_value es una variable de la clase GUIApp
         self.move_value = msg.data
 
     def listener_callback2(self, msg):
-        self.vel1 = msg.linear.x
-        self.angle1 = msg.linear.y
+        self.anglec1 = np.radians(msg.x)
+        self.anglec2 = np.radians(msg.y)
     
     def listener_callback3(self, msg):
-        self.angle = msg.x
-        self.angle = msg.y
+        self.angle1 = msg.x
+        self.angle2 = msg.y
     
     def publish_mode(self, mode):
         msg = String()
@@ -60,8 +63,33 @@ class ROSNode(Node):
         msg.x = float(slider1)
         msg.y = float(slider2)
         self.publisher_angle.publish(msg)
-        
 
+    def dh_matrix(self, theta1, theta2, a1, a2):
+        return np.array([
+            [np.cos(theta1 + theta2), -np.sin(theta1 + theta2), 0, a1*np.cos(theta1) + a2*np.cos(theta1 + theta2)],
+            [np.sin(theta1 + theta2), np.cos(theta1 + theta2), 0, a1*np.sin(theta1) + a2*np.sin(theta1 + theta2)],
+            [0, 0, 1, 0],
+            [0, 0, 0, 1]
+        ])
+    
+    def forward_kinematics(self,theta1, theta2, L1, L2):
+        T1 = self.dh_matrix(theta1, theta2, L1, L2)
+        
+        return T1[:2, -1]
+
+    def joint_pos(self, theta1, L1):
+        x_p2 = L1*np.cos(theta1)
+        y_p2 = L1*np.sin(theta1)
+        pos = np.array([x_p2, y_p2])
+
+        return pos
+    
+    def get_joint_positions(self, theta1, theta2, L1, L2):
+        pos0 = np.array([0, 0])  # Posición del joint fijo o base
+        pos1 = self.joint_pos(theta1, L1)
+        pos2 = self.forward_kinematics(theta1, theta2, L1, L2)
+        return np.vstack((pos0, pos1, pos2))
+    
 
 class GUIApp:
     def __init__(self, ros_node):
@@ -71,10 +99,17 @@ class GUIApp:
         self.root.geometry("800x600")  # Relación de aspecto 1:1
         sv_ttk.set_theme("dark")
         # Configurar Matplotlib
+        
         plt.style.use('dark_background')  # Fondo negro
         self.fig, self.ax1 = plt.subplots(1, 1, figsize=(6, 4))  # Solo una subgráfica
         plt.title('DOF 2 Exoesqeleto')
-        plt.grid()
+        # plt.grid()
+        
+        self.line, = self.ax1.plot([], [], 'o-', label='Joint Positions')
+        self.ax1.legend()
+        self.ax1.set_xlabel('X')
+        self.ax1.set_ylabel('Y')
+
         self.canvas = FigureCanvasTkAgg(self.fig, master=self.root)
         self.canvas_widget = self.canvas.get_tk_widget()
         self.canvas_widget.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
@@ -156,13 +191,20 @@ class GUIApp:
         message = "stop"
         self.ros_node.publish_mode(message)
         
-    def update_plots(self):
-        pass
+    def update_plots(self, joint_positions):
+        # Actualiza el gráfico utilizando las posiciones de las articulaciones
+        self.line.set_data(joint_positions[:, 0], joint_positions[:, 1])
+        self.ax1.set_xlim(-1,1)
+        self.ax1.set_ylim(-1,1)
+        self.canvas.draw()
 
     def update_from_ros(self):
         # Actualizar gráficos desde ROS cada segundo
+        joint_positions = self.ros_node.get_joint_positions(self.ros_node.anglec1, self.ros_node.anglec2, L1=0.5, L2=0.5)
+        # Actualizar el gráfico con las nuevas posiciones de las articulaciones
+        print(joint_positions)
+        self.update_plots(joint_positions)
         self.update_label_from_node()
-        self.update_plots()
         self.root.after(1000, self.update_from_ros)
 
 
@@ -178,7 +220,6 @@ def main(args = None):
     # Hilo para ROS
     ros_thread_instance = threading.Thread(target=rclpy.spin, args=(ros_node,), daemon=True)
     ros_thread_instance.start()
-
     # Interfaz gráfica
     gui_app = GUIApp(ros_node)
     gui_app.run()
