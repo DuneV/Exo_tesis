@@ -9,6 +9,8 @@ from std_msgs.msg import String as StringMsg
 from rclpy.node import Node
 import socket
 from threading import Timer
+from std_msgs.msg import String
+
 
 # Parameters
 localPort = 8888
@@ -23,7 +25,12 @@ class esp32Communicationw(Node):
         self.esp32w.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1) #enable broadcasting mode
         self.esp32w.bind(('', localPort))
         self.publisher_1 = self.create_publisher(StringMsg, '/movement', 10)
+        self.susbcription2 = self.create_subscription(String, 
+                                                      '/mode', 
+                                                      self.listener_callback2, 
+                                                      10)
         self.message = StringMsg()
+        self.flag = False
         print("UDP server : {}:{}".format(self.get_ip_address(),localPort))
     
     def get_ip_address(self):
@@ -36,23 +43,39 @@ class esp32Communicationw(Node):
         return ip_address
         
     def get_wdata(self):
-        data, addr = self.esp32w.recvfrom(1024)
-        data_rev = data.decode('utf-8')
-        data_rev = data_rev.split(';')
-        data_rev = [float(element.replace(',', '.')) for element in data_rev]
-        result = tuple(data_rev)
-        print(result)
-        stay_msg = StringMsg()
-        stay_msg.data = 'stay'
-        walk_msg = StringMsg()
-        walk_msg.data = 'walk'
-        if result[0] > 0.5:
-            self.publisher_1.publish(stay_msg)
-        elif result[1] > 0.5:
-            self.publisher_1.publish(walk_msg)
+        if self.flag == False:
+            data, addr = self.esp32w.recvfrom(1024)
+            data_rev = data.decode('utf-8')
+            data_rev = data_rev.split(';')
+            data_rev = [float(element.replace(',', '.')) for element in data_rev]
+            result = tuple(data_rev)
+            # print(result)
+            stay_msg = StringMsg()
+            stay_msg.data = 'stay'
+            walk_msg = StringMsg()
+            walk_msg.data = 'walk'
+            if result[0] > 0.5:
+                self.publisher_1.publish(stay_msg)
+            elif result[1] > 0.5:
+                self.publisher_1.publish(walk_msg)
+        else:
+            pass
         # print(data)
         # print(addr)
         #return data, addr
+    
+    def listener_callback(self, msg):
+        dato = msg.data
+        if dato == "Automatico":
+            pass
+        elif dato == "ML":
+            self.flag = False
+        elif dato == "Manual":
+            self.flag = True
+        elif dato == "stop":
+            exit(0)
+        
+        
 
 
 def main(args = None):

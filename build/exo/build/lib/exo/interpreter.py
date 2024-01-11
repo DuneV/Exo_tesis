@@ -46,7 +46,7 @@ class ROSNode(Node):
         self.move_value = msg.data
 
     def listener_callback2(self, msg):
-        self.anglec1 = np.radians(msg.x)
+        self.anglec1 = np.radians(msg.x) + self.offset_angle
         self.anglec2 = np.radians(msg.y)
     
     def listener_callback3(self, msg):
@@ -119,7 +119,7 @@ class GUIApp:
         self.button_publish.pack(side=tk.LEFT, padx=(10, 10), pady=10)
 
         # Configurar botones adicionales en la misma fila
-        self.button_automatico = ttk.Button(self.root, text="Automatic", command=self.click_automatico, style='TButton')
+        self.button_automatico = ttk.Button(self.root, text="Home", command=self.click_automatico, style='TButton')
         self.button_automatico.pack(side=tk.LEFT, padx=(10, 10), pady=10)
 
         self.button_ml = ttk.Button(self.root, text="ML", command=self.click_ml, style='TButton')
@@ -134,7 +134,7 @@ class GUIApp:
         self.button_stop.pack(side=tk.LEFT, padx=(10, 10), pady=10)
 
         # Configurar recuadro de información
-        self.info_frame = tk.Frame(self.root, bg='gray', padx=10, pady=10)
+        self.info_frame = tk.Frame(self.root, bg='black', padx=10, pady=10)
         self.info_frame.pack(side=tk.LEFT, fill=tk.Y)
         
         self.info_label = tk.Label(self.info_frame, text = "Status: " + self.ros_node.move_value, font=('Arial', 12), bg='gray', fg='white', justify=tk.CENTER)
@@ -176,7 +176,7 @@ class GUIApp:
         self.ros_node.publish_angle(value_slider1, value_slider2)
 
     def click_automatico(self):
-        message = "Automatico"
+        message = "Home"
         self.ros_node.publish_mode(message)
 
     def click_ml(self):
@@ -194,6 +194,10 @@ class GUIApp:
     def update_plots(self, joint_positions):
         # Actualiza el gráfico utilizando las posiciones de las articulaciones
         self.line.set_data(joint_positions[:, 0], joint_positions[:, 1])
+        self.ax1.patches.remove(0)
+        for position in joint_positions:
+            circle = plt.Circle((position[0], position[1]), 0.05, fill=False, edgecolor='blue', linewidth=2)
+            self.ax1.add_patch(circle)
         self.ax1.set_xlim(-1,1)
         self.ax1.set_ylim(-1,1)
         self.canvas.draw()
@@ -202,7 +206,7 @@ class GUIApp:
         # Actualizar gráficos desde ROS cada segundo
         joint_positions = self.ros_node.get_joint_positions(self.ros_node.anglec1, self.ros_node.anglec2, L1=0.5, L2=0.5)
         # Actualizar el gráfico con las nuevas posiciones de las articulaciones
-        print(joint_positions)
+        # print(joint_positions)
         self.update_plots(joint_positions)
         self.update_label_from_node()
         self.root.after(1000, self.update_from_ros)

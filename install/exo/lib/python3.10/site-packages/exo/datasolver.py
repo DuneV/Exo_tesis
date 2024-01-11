@@ -22,9 +22,16 @@ class esp32Communication(Node):
             self.listener_callback, 
             10
         )
+        self.susbcription2 = self.create_subscription(String, 
+                                                      '/mode', 
+                                                      self.listener_callback2, 
+                                                      10)
+        self.susbcription3 = self.create_subscription(Point, '/slider', 
+                                                      self.listener_callback3, 10)
         self.timer = None
         self.wait = 8.5
         self.angulos_guardados = []
+        self.manual = False
         self.timer_enabled = False  # Bandera para controlar el temporizador
         self.task_completed = False  # Bandera para indicar si la tarea ha terminado
         self.actual_pos = np.zeros(6)
@@ -119,7 +126,7 @@ class esp32Communication(Node):
             
             # Esperar el tiempo dinámico antes de la siguiente fila
             time.sleep(wait_time)
-        print(self.angulos_guardados)
+        # print(self.angulos_guardados)
         # Reiniciar la bandera de tarea completada
         self.task_completed = False
 
@@ -209,11 +216,13 @@ class esp32Communication(Node):
         v2 = sum(angulof2)
         dir1 = int(v1 > 0)
         dir2 = int(v2 <= 0)
-        print(v1)
-        print(v2)
+        # print(v1)
+        # print(v2)
         # Crear el vector de movimiento
         self.mvec = np.array([dir1, abs(v1), velh, dir2, abs(v2), velh])
-
+        self.angles.x = -v1 if dir else v1
+        self.angles.y = v2 if dir2 else -v2
+        self.publisher_2.publish(self.angles)
         # Ejecutar la subrutina
         self.home = ','.join(map(str, self.mvec))
         self.execute_subroutine(self.home)
@@ -243,6 +252,34 @@ class esp32Communication(Node):
         print("Tarea completada")
         # Establecer la bandera de tarea completada
         self.task_completed = True
+    
+    def listener_callback2(self, msg):
+        dato = msg.data
+        if dato == "Home":
+            pass
+        elif dato == "ML":
+            self.manual = False
+        elif dato == "Manual":
+            self.manual = True
+        elif dato == "stop":
+            exit(0)
+    
+    def listener_callback3(self, msg):
+    
+        if self.manual == True:
+            dato_a = msg.x
+            dato_b = msg.y
+            movimiento = np.array([0 if dato_a > 0 else 1, abs(dato_a), 2000, 1 if dato_b > 0 else 0, abs(dato_b), 2000])
+
+            mov = ','.join(map(str, movimiento))
+            self.execute_subroutine(mov)
+            self.task_completed = False
+            self.angles.x = dato_a
+            self.angles.y = dato_b
+            self.angulos_guardados.append((dato_a, dato_b))
+            self.publisher_2.publish(self.angles)
+            
+
 
     def close(self):
         self.esp32.close()
