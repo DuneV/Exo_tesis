@@ -10,7 +10,6 @@ from std_msgs.msg import String
 import sv_ttk
 from geometry_msgs.msg import Twist, Point
 import matplotlib.pyplot as plt
-import matplotlib.patches as patches
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 class ROSNode(Node):
@@ -195,7 +194,7 @@ class GUIApp:
     def update_plots(self, joint_positions):
         # Actualiza el gráfico utilizando las posiciones de las articulaciones
         self.line.set_data(joint_positions[:, 0], joint_positions[:, 1])
-        self.ax1.patches = []
+        self.ax1.patches.clear()
         for position in joint_positions:
             circle = plt.Circle((position[0], position[1]), 0.05, fill=False, edgecolor='blue', linewidth=2)
             self.ax1.add_patch(circle)
