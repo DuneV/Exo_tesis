@@ -1,0 +1,26 @@
+running egg_info
+writing ../../build/exo/exo.egg-info/PKG-INFO
+writing dependency_links to ../../build/exo/exo.egg-info/dependency_links.txt
+writing entry points to ../../build/exo/exo.egg-info/entry_points.txt
+writing requirements to ../../build/exo/exo.egg-info/requires.txt
+writing top-level names to ../../build/exo/exo.egg-info/top_level.txt
+reading manifest file '../../build/exo/exo.egg-info/SOURCES.txt'
+writing manifest file '../../build/exo/exo.egg-info/SOURCES.txt'
+running build
+running build_py
+copying exo/datasolver.py -> /home/krita/exo_ws/build/exo/build/lib/exo
+running install
+/usr/lib/python3/dist-packages/setuptools/command/install.py:34: SetuptoolsDeprecationWarning: setup.py install is deprecated. Use build and pip and other standards-based tools.
+  warnings.warn(
+running install_lib
+copying /home/krita/exo_ws/build/exo/build/lib/exo/datasolver.py -> /home/krita/exo_ws/install/exo/lib/python3.10/site-packages/exo
+byte-compiling /home/krita/exo_ws/install/exo/lib/python3.10/site-packages/exo/datasolver.py to datasolver.cpython-310.pyc
+running install_data
+running install_egg_info
+removing '/home/krita/exo_ws/install/exo/lib/python3.10/site-packages/exo-0.0.0-py3.10.egg-info' (and everything under it)
+Copying ../../build/exo/exo.egg-info to /home/krita/exo_ws/install/exo/lib/python3.10/site-packages/exo-0.0.0-py3.10.egg-info
+running install_scripts
+Installing control script to /home/krita/exo_ws/install/exo/lib/exo
+Installing interface script to /home/krita/exo_ws/install/exo/lib/exo
+Installing wlanesp script to /home/krita/exo_ws/install/exo/lib/exo
+writing list of installed files to '/home/krita/exo_ws/build/exo/install.log'

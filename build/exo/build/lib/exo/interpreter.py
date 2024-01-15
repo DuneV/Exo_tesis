@@ -14,7 +14,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 class ROSNode(Node):
     def __init__(self):
-        super().__init__("control")
+        super().__init__("inteface")
         # Configuración de suscripciones y temporizador
         self.subscription = self.create_subscription(String, 
                                                      '/movement', 
@@ -37,9 +37,9 @@ class ROSNode(Node):
         self.move_value = " "
         self.angle1 = 0.0
         self.angle2 = 0.0
-        self.offset_angle = np.radians(-90)
+        self.offset_angle = np.radians(-70)
         self.anglec1 = 0.0 + self.offset_angle
-        self.anglec2 = 0.0 
+        self.anglec2 = 0.0 - np.radians(20)
 
     def listener_callback(self, msg):
         # Ahora, self.move_value es una variable de la clase GUIApp
@@ -135,7 +135,7 @@ class GUIApp:
 
         # Configurar recuadro de información
         self.info_frame = tk.Frame(self.root, bg='black', padx=10, pady=10)
-        self.info_frame.pack(side=tk.LEFT, fill=tk.Y)
+        self.info_frame.pack(side=tk.LEFT, fill=tk.Y, pady=(50,20))
         
         self.info_label = tk.Label(self.info_frame, text = "Status: " + self.ros_node.move_value, font=('Arial', 12), bg='gray', fg='white', justify=tk.CENTER)
         self.info_label.pack()
@@ -204,7 +204,7 @@ class GUIApp:
 
     def update_from_ros(self):
         # Actualizar gráficos desde ROS cada segundo
-        joint_positions = self.ros_node.get_joint_positions(self.ros_node.anglec1, self.ros_node.anglec2, L1=0.5, L2=0.5)
+        joint_positions = self.ros_node.get_joint_positions(self.ros_node.anglec1, self.ros_node.anglec2, L1=0.39, L2=0.233)
         # Actualizar el gráfico con las nuevas posiciones de las articulaciones
         # print(joint_positions)
         self.update_plots(joint_positions)

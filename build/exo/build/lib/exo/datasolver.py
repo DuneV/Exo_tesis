@@ -83,7 +83,7 @@ class esp32Communication(Node):
             self.handle_case1()
         elif self.move == 'march':
             self.handle_case2()
-        elif self.move == 'pose0':
+        elif self.move == 'pose1':
             self.handle_case3()
         elif self.move == 'pose2':
             self.handle_case4()
@@ -174,32 +174,30 @@ class esp32Communication(Node):
 
     def handle_case3(self):
         # matrix de posicion
-        self.addr = 0
-        self.theta1 = 20
-        self.theta2 = self.theta1
-        self.vel = 20000
-        self.matrixp0 = np.array([self.addr, self.theta1, self.vel, self.addr, self.theta2, self.vel])
-        self.angulos_guardados.append((self.theta1, self.theta2))
-        self.angles.x = self.theta1
-        self.angles.y = self.theta2
+        self.addr = 1
+        self.theta1 = 10.0
+        self.theta2 = 45.0
+        self.vel = 2000
+        self.matrixp0 = np.array([self.addr, self.theta1, self.vel, 0, self.theta2, self.vel])
+        self.angulos_guardados.append((-self.theta1 , -self.theta2))
+        self.angles.x = -self.theta1 
+        self.angles.y = -self.theta2
         self.publisher_2.publish(self.angles)
-        self.task_completed = False
-        self.pose1 = ','.join(map(str, self.matrixp0))
-        # Ejecutar subrutina 1
-        self.execute_subroutine(self.pose1)
+        self.posew = ','.join(map(str, self.matrixp0))
+        self.execute_subroutine(self.posew)
         time.sleep(2)
 
     def handle_case4(self):
         # matrix de posicion
-        self.addr = 1
-        self.theta1 = 20
+        self.addr = 0
+        self.theta1 = 20.0
         k = 0.6
         self.theta2 = k*self.theta1
-        self.vel = 20000
-        self.matrixp1 = np.array([self.addr, self.theta1, self.vel, 0, self.theta2, self.vel])
-        self.angulos_guardados.append((-self.theta1, self.theta2))
-        self.angles.x = -self.theta1
-        self.angles.y = self.theta2
+        self.vel = 2000
+        self.matrixp1 = np.array([self.addr, self.theta1, self.vel, self.addr , 25.0, self.vel])
+        self.angulos_guardados.append((self.theta1, -self.theta2))
+        self.angles.x = self.theta1
+        self.angles.y = -self.theta2
         self.publisher_2.publish(self.angles)
         self.task_completed = False
         self.pose1 = ','.join(map(str, self.matrixp1))
